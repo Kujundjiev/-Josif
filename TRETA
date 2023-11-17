@@ -1,0 +1,94 @@
+TCP Сервер:
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class TCPServer {
+    public static void main(String[] args) {
+        int port = 12345;
+
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            System.out.println("Серверот чека за конекции на порта " + port + "...");
+            Socket clientSocket = serverSocket.accept();
+            System.out.println("Клиентот се конектираше.");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+
+            String clientMessage = in.readLine();
+            System.out.println("Пораката од клиентот: " + clientMessage);
+
+            if (isFourDigitNumber(clientMessage)) {
+                out.println("Porakata e primena");
+            } else if (hasAlternatingCase(clientMessage)) {
+                out.println("Poraka so naizmenicni karakteri");
+            } else {
+                out.println("Neocekuvana poraka");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static boolean isFourDigitNumber(String message) {
+        try {
+            int number = Integer.parseInt(message);
+            return String.valueOf(number).length() == 4;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private static boolean hasAlternatingCase(String message) {
+        char[] chars = message.toCharArray();
+        boolean alternatingCase = true;
+
+        for (int i = 0; i < chars.length - 1; i++) {
+            if (Character.isLetter(chars[i]) && Character.isLetter(chars[i + 1])) {
+                if (Character.isUpperCase(chars[i]) == Character.isUpperCase(chars[i + 1])) {
+                    alternatingCase = false;
+                    break;
+                }
+            }
+        }
+
+        return alternatingCase;
+    }
+}
+
+
+TCP Клиент:
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+
+public class TCPClient {
+    public static void main(String[] args) {
+        String serverAddress = "localhost";
+        int serverPort = 12345;
+
+        try (Socket socket = new Socket(serverAddress, serverPort);
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+             BufferedReader consoleInput = new BufferedReader(new InputStreamReader(System.in))) {
+
+            System.out.print("Внесете порака: ");
+            String message = consoleInput.readLine();
+
+            out.println(message);
+
+            String serverResponse = in.readLine();
+            System.out.println("Одговор од серверот: " + serverResponse);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
