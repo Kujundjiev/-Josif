@@ -1,0 +1,84 @@
+class Vraboten {
+    private int ID;
+    private String ime;
+    private String prezime;
+    private double rabotni_casovi;
+    private double koeficient;
+    private double cena_cas;
+    private double bonusi;
+
+    public Vraboten(int ID, String ime, String prezime, double rabotni_casovi, double koeficient, double cena_cas, double bonusi) {
+        this.ID = ID;
+        this.ime = ime;
+        this.prezime = prezime;
+        this.rabotni_casovi = rabotni_casovi;
+        this.koeficient = koeficient;
+        this.cena_cas = cena_cas;
+        this.bonusi = bonusi;
+    }
+
+    public int getID() {
+        return ID;
+    }
+
+    public String getIme() {
+        return ime;
+    }
+
+    public String getPrezime() {
+        return prezime;
+    }
+
+    public double getRabotniCasovi() {
+        return rabotni_casovi;
+    }
+
+    public double getKoeficient() {
+        return koeficient;
+    }
+
+    public double getCenaCas() {
+        return cena_cas;
+    }
+
+    public double getBonusi() {
+        return bonusi;
+    }
+
+    public double plata() {
+        return rabotni_casovi * koeficient * cena_cas + bonusi;
+    }
+}
+
+class VrabotenOpredeleno extends Vraboten {
+    private double odbitoci;
+
+    public VrabotenOpredeleno(int ID, String ime, String prezime, double rabotni_casovi, double koeficient, double cena_cas, double bonusi, double odbitoci) {
+        super(ID, ime, prezime, rabotni_casovi, koeficient, cena_cas, bonusi);
+        this.odbitoci = odbitoci;
+    }
+
+    @Override
+    public double plata() {
+        return getRabotniCasovi() * getKoeficient() * getCenaCas() - odbitoci;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        VrabotenOpredeleno[] vraboteni = {
+                new VrabotenOpredeleno(1, "Петар", "Петров", 160, 8, 100, 5000, 1000),
+                new VrabotenOpredeleno(2, "Марко", "Марков", 150, 7.5, 120, 4500, 800),
+                new VrabotenOpredeleno(3, "Ана", "Аневска", 170, 9, 110, 5500, 1200)
+        };
+
+        VrabotenOpredeleno maxPlataVraboten = vraboteni[0];
+        for (VrabotenOpredeleno vraboten : vraboteni) {
+            if (vraboten.plata() > maxPlataVraboten.plata()) {
+                maxPlataVraboten = vraboten;
+            }
+        }
+
+        System.out.println("Вработениот со најголема плата е: " + maxPlataVraboten.getIme() + " " + maxPlataVraboten.getPrezime());
+    }
+}
