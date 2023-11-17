@@ -1,0 +1,104 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class MatrixOperations {
+    public static void main(String[] args) {
+        int[][] matrix = new int[5][5];
+        String inputFile = "data.txt";
+        String outputFile = System.getProperty("user.home") + "/Desktop/output2.txt";
+
+        // Вчитување на матрицата од датотека
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
+            for (int i = 0; i < 5; i++) {
+                String[] rowValues = reader.readLine().split(" ");
+                for (int j = 0; j < 5; j++) {
+                    matrix[i][j] = Integer.parseInt(rowValues[j]);
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Грешка при читање од датотека.");
+            e.printStackTrace();
+            return;
+        }
+
+        // Печатење на оригиналната матрица
+        System.out.println("Оригиналната матрица:");
+        printMatrix(matrix);
+
+        // Проверка на условот за транспонирање
+        if (productOfMainDiagonal(matrix) * 3 < productOfSecondaryDiagonal(matrix)) {
+            // Транспонирање на матрицата
+            transposeMatrix(matrix);
+
+            // Печатење на транспонираната матрица
+            System.out.println("\nТранспонираната матрица:");
+            printMatrix(matrix);
+
+            // Запишување на транспонираната матрица во датотеката "output2.txt"
+            writeMatrixToFile(matrix, outputFile);
+            System.out.println("\nТранспонираната матрица е запишана во датотеката: " + outputFile);
+        } else {
+            // Запишување на оригиналната матрица во датотеката "output2.txt"
+            writeMatrixToFile(matrix, outputFile);
+            System.out.println("\nОригиналната матрица е запишана во датотеката: " + outputFile);
+        }
+    }
+
+    // Метод за пресметка на производот на елементите на главната дијагонала
+    private static int productOfMainDiagonal(int[][] matrix) {
+        int product = 1;
+        for (int i = 0; i < matrix.length; i++) {
+            product *= matrix[i][i];
+        }
+        return product;
+    }
+
+    // Метод за пресметка на производот на елементите на споредната дијагонала
+    private static int productOfSecondaryDiagonal(int[][] matrix) {
+        int product = 1;
+        for (int i = 0; i < matrix.length; i++) {
+            product *= matrix[i][matrix.length - 1 - i];
+        }
+        return product;
+    }
+
+    // Метод за транспонирање на матрицата
+    private static void transposeMatrix(int[][] matrix) {
+        int n = matrix.length;
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                int temp = matrix[i][j];
+                matrix[i][j] = matrix[j][i];
+                matrix[j][i] = temp;
+            }
+        }
+    }
+
+    // Метод за печатење на матрицата
+    private static void printMatrix(int[][] matrix) {
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                System.out.print(matrix[i][j] + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    // Метод за запишување на матрицата во датотека
+    private static void writeMatrixToFile(int[][] matrix, String outputFile) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
+            for (int i = 0; i < matrix.length; i++) {
+                for (int j = 0; j < matrix[i].length; j++) {
+                    writer.write(matrix[i][j] + " ");
+                }
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println("Грешка при запишување во датотека.");
+            e.printStackTrace();
+        }
+    }
+}
