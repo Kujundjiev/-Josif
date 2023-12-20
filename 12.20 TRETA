@@ -1,0 +1,44 @@
+Прво, додадете ги следниве зависности во pom.xml на двете апликации:
+
+xml
+
+<!-- Зависности за MQTT библиотеки -->
+<dependencies>
+    <dependency>
+        <groupId>org.eclipse.paho</groupId>
+        <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+        <version>1.2.5</version>
+    </dependency>
+</dependencies>
+
+
+MQTTPublisher.java (Објавувач):
+
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+
+public class MQTTPublisher {
+    public static void main(String[] args) {
+        String broker = "mqtt://<вашата HiveMQ Cloud бројка>";
+        String clientId = "publisher";
+        String topic = "brzinainfo";
+
+        try {
+            MqttClient client = new MqttClient(broker, clientId);
+            client.connect();
+
+            for (int i = 0; i < 10; i++) {
+                int speed = (int) (Math.random() * 100) + 1;
+                String message = "Brzina: " + speed + " km/h";
+                MqttMessage mqttMessage = new MqttMessage(message.getBytes());
+                client.publish(topic, mqttMessage);
+                Thread.sleep(1000); // Почекајте 1 секунда пред да испратите следната порака
+            }
+
+            client.disconnect();
+        } catch (MqttException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
