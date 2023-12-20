@@ -1,0 +1,47 @@
+UDP сервер:
+
+import socket
+
+# Подесување на серверската адреса и порта
+server_address = ('localhost', 4223)
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+server_socket.bind(server_address)
+
+while True:
+    print('Чекам порака од клиент...')
+    data, client_address = server_socket.recvfrom(1024)
+    received_data = data.decode('utf-8').split('/')
+
+    # Пресметување на вкупните поени
+    total_points = sum(map(int, received_data))
+
+    # Проверка дали студентот има повеќе од 51 поен
+    if total_points > 51:
+        response = "Go polozivte ispitot po NP"
+    else:
+        response = "Ne go polozivte ispitot po NP"
+
+    # Праќање на одговор до клиентот
+    server_socket.sendto(response.encode('utf-8'), client_address)
+
+
+UDP клиент:
+import socket
+
+# Подесување на серверската адреса и порта
+server_address = ('localhost', 4223)
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+# Внесување на поените од вежби, предавања, колоквиуми, семинарска и испит
+points_input = input("Внесете поените во формат: poeni_od_vezbi/poeni_od_predavanja/poeni_od_prv_kolokvium/poeni_od_vtor_kolokvium/poeni_od_seminarska/poeni_od_ispit: ")
+client_socket.sendto(points_input.encode('utf-8'), server_address)
+
+# Примање на одговор од серверот
+data, _ = client_socket.recvfrom(1024)
+response = data.decode('utf-8')
+
+# Печатење на одговорот
+print("Одговор од серверот:", response)
+
+# Затворање на сокетот
+client_socket.close()
