@@ -1,0 +1,102 @@
+UDPServer.java (Сервер):
+
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+
+public class UDPServer {
+    public static void main(String[] args) {
+        DatagramSocket serverSocket = null;
+
+        try {
+            // Креирање на сокет за примање на пораки на порта 4223
+            serverSocket = new DatagramSocket(4223);
+
+            byte[] receiveData = new byte[1024];
+
+            while (true) {
+                // Прием на пораката од клиентот
+                DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+                serverSocket.receive(receivePacket);
+
+                // Претворање на бајтовите во текст
+                String receivedMessage = new String(receivePacket.getData(), 0, receivePacket.getLength());
+
+                // Пресметување на вкупниот број на поени
+                String[] points = receivedMessage.split("/");
+                int totalPoints = 0;
+                for (String point : points) {
+                    totalPoints += Integer.parseInt(point);
+                }
+
+                // Подготовка на одговорот
+                String response;
+                if (totalPoints > 51) {
+                    response = "Go polozivte ispitot po NP";
+                } else {
+                    response = "Ne go polozivte ispitot po NP";
+                }
+
+                // Праќање на одговорот на клиентот
+                DatagramPacket sendPacket = new DatagramPacket(response.getBytes(), response.length(),
+                        receivePacket.getAddress(), receivePacket.getPort());
+                serverSocket.send(sendPacket);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (serverSocket != null && !serverSocket.isClosed()) {
+                serverSocket.close();
+            }
+        }
+    }
+}
+
+UDPClient.java (Клиент):
+
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.util.Scanner;
+
+public class UDPClient {
+    public static void main(String[] args) {
+        DatagramSocket clientSocket = null;
+        Scanner scanner = new Scanner(System.in);
+
+        try {
+            // Креирање на сокет за испраќање на пораки
+            clientSocket = new DatagramSocket();
+
+            // Внесување на поените од различни делови
+            System.out.println("Vnesete poeni od vezbi/predavanja/prv_kolokvium/vtor_kolokvium/seminarska/ispit: ");
+            String points = scanner.nextLine();
+
+            // Подготовка на пораката
+            byte[] sendData = points.getBytes();
+
+            // Креирање на пакет за испраќање на серверот
+            InetAddress serverAddress = InetAddress.getByName("localhost");
+            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, serverAddress, 4223);
+
+            // Испраќање на пораката на серверот
+            clientSocket.send(sendPacket);
+
+            // Примање на одговорот од серверот
+            byte[] receiveData = new byte[1024];
+            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+            clientSocket.receive(receivePacket);
+
+            // Претворање на бајтовите во текст и прикажување на одговорот
+            String serverResponse = new String(receivePacket.getData(), 0, receivePacket.getLength());
+            System.out.println("Server Response: " + serverResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (clientSocket != null && !clientSocket.isClosed()) {
+                clientSocket.close();
+            }
+            scanner.close();
+        }
+    }
+}
+
