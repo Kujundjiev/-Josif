@@ -45,3 +45,4 @@ print("Одговор од серверот:", response)
 
 # Затворање на сокетот
 client_socket.close()
+U JAVA KIROOO ZA U ECLIPSE PISI
